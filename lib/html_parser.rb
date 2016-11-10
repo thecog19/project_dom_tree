@@ -4,6 +4,7 @@ class HTMLParser
 
   def initialize(str)
     @html_tag = str
+    # create_struct
   end
 
   def create_struct
@@ -13,7 +14,12 @@ class HTMLParser
   end
 
   def type_parse
+    type = /<(.*?)\s/.match(@html_tag)
+    type[1..-1].join("")
+  end
 
+  def parse_for(attribute)
+    attr_and_value = /#{attribute}\s*=\s*'\s*(.*?)\s*'/.match(@html_tag)
   end
 # takes in string
 # spits out object that represents tag & can be inquired of to get attributes (id, class, etc)
@@ -24,3 +30,6 @@ class HTMLParser
   # store 'em all in Struct
 
 end
+
+tag = HTMLParser.new("<p class='foo bar' id='baz' name='fozzie'>")
+tag.parse_for("class")
