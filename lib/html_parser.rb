@@ -3,33 +3,43 @@ Node = Struct.new(:tag, :parent, :children, :data)
 class HTMLParser
 
   def initialize(html_doc)
-    print @page_array = File.open(html_doc).readlines
+    @page_array = File.open(html_doc).readlines
   end
 
   def parse_page(match_data = @page_array)
     crawl_page_array
-
-
-
-    tag = scan_for_tag
-    grab_everything = /(?<=#{tag}\>)(\s*.*\s*)(?=\<\/#{tag}\>)/m 
-    current_data = grab_everything.match(match_data)
-    parse_page(current_data)
-    #add the text in, nodes for every parse down
-    build_tree(tag, current_data)
   end
 
   def crawl_page_array
     i = 0
     until @page_array.empty?
-      if @page_array[0]
+      stack_of_parents = []
+      tag = scan_for_tag(@page_array[i])
+      if !!tag
+        if is_end_tag?(tag)
+          stack_of_parents.pop
+        else
+          node = TagGenerator.new(tag)
+          node.parent = stack_of_parents[-1]
+          node.parent.childern << node if node.parent
+          stack_of_parents << node
+        end
+        @page_array.shift
+      else
+        node = Node.new(@page_array[i],stack_of_parents[-1])
+      end
     end
   end
 
-  def scan_for_tag
+  def is_end_tag?(tag)
+    end_tag_scan_regex = /<\/(.*?)/
+    !!tag.match(tag_scan_regex)
+  end
+
+  def scan_for_tag(input)
     tag_scan_regex = /<(.*?)>/m
-    data = @page.match(tag_scan_regex)
-    data[0][1..-2]
+    data = input.match(tag_scan_regex)
+    data[0][1..-2] unless data.nil?
   end
 
   def build_tree(tag, current_data)
@@ -39,4 +49,4 @@ class HTMLParser
 
 end
 
-HTMLParser.new("html_easy.html")
+HTMLParser.new("html_easy.html").scan_for_tag("sahkjdahildhal")

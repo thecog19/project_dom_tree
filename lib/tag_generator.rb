@@ -1,4 +1,4 @@
-TagNode = Struct.new( :type, :name, :id, :classes, :src, :title )
+TagNode = Struct.new( :type, :name, :id, :classes, :src, :title, :childern, :parent )
 # Make regexs CONSTANTS
 class TagGenerator
 
@@ -10,7 +10,7 @@ class TagGenerator
   def create_struct
     tag = TagNode.new(
       type_parse,parse_for("name"),parse_for("id"),parse_for("class"),
-      parse_for("src"), parse_for("title"))
+      parse_for("src"), parse_for("title"), [])
   end
 
   def type_parse
