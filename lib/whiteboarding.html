@@ -3,12 +3,29 @@
   <p>
     p text
   </p>
+  jfdklfjsl
   <div>
     more div text
   </div>
   div text after
 </div>
 
-Node1(tagNode1, parent: none, kid:Node2, Node3, NOdeText1 Node2, Node3, NOdeText4)
-Node2(tagNode2, parent: Node1, Kid:none, content p text)
-Node3(tagNode3, parent: Node1, Kid:none, content: more div text)
+                    div
+test before         p      div      text(div text after)
+                    text   text
+
+scan_for_text -> build text node (assign current_parent to child, add child to parent)
+scan_for_tag -> build tag node   (assign current_parent to child, add child to parent)
+          tag node = current_parent
+          if children.content.join == self.content.join
+
+# Have our page
+-----------------------
+# Go thru page, find first tag & its closer (html_parser.parse_page)
+# Return content btwn open/close tags (html_parser.parse_page)
+# We have tag & its content
+# Root node = tag w/ its attributes
+-----------------------
+# Go thru content:
+ # find if text before, make it a node
+ # find first tag & its closer, make it a node, then return its content
