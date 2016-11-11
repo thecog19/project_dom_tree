@@ -3,8 +3,9 @@ class TreeSearcher
   COMMANDS = {
     "id" => ->(node) {node.tag.id},
     "name" => ->(node) {node.tag.name},
+    "class" => ->(node) {node.tag.classes},
     "classes" => ->(node) {node.tag.classes},
-    "type" => ->(node) {node.tag.type}
+    "type" => ->(node) {node.tag.type},
     "tag" => ->(node) {node.tag.type}
   }  
 
@@ -80,7 +81,7 @@ class TreeSearcher
     if content.is_a?(Array)
       return true if content.any? do |html_class| 
         x = /#{html_class}/.match(term)
-        !!x[1..-1]
+        !!x
       end
     end
     x =  /#{term}/.match(content)
