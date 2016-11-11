@@ -1,21 +1,23 @@
-TagNode = Struct.new( :type, :name, :id, :classes, :src, :title, :childern, :parent )
+Tag = Struct.new( :type,:name, :id, :classes, :src, :title, )
 # Make regexs CONSTANTS
 class TagGenerator
 
   def initialize(str)
     @html_tag = str
-    create_struct
   end
 
-  def create_struct
-    tag = TagNode.new(
+  def create_struct(str = @html_tag)
+    tag = Tag.new(
       type_parse,parse_for("name"),parse_for("id"),parse_for("class"),
-      parse_for("src"), parse_for("title"), [])
+      parse_for("src"), parse_for("title"))
   end
 
   def type_parse
     type = /<(.*?)\s/.match(@html_tag)
-    type[1..-1].join("")
+    return type[1..-1].join("") if type
+    type = /<(.*?)>/.match(@html_tag)
+    return type[1..-1].join("") if type
+    nil
   end
 
   def parse_for(attribute)

@@ -1,53 +1,76 @@
 Node = Struct.new(:tag, :parent, :children, :data)
+require_relative "tag_generator"
+
+END_TAG = /<\/.*?>/
+FULL_TAG = /<.*?>/
+GODHEAD = /(<[\/!]?[\w\s="'-]+>\s*)|([^<>]*)/
+VOID_ELEMENTS = "area, base, br, col, command, embed, hr, img, input, keygen, link, meta, param, source, track, wbr".split(', ')
 
 class HTMLParser
-
+  attr_reader :root, :page_array
   def initialize(html_doc)
     @page_array = File.open(html_doc).readlines
+    @page_string = @page_array.join
+    @page_array = setup_array
+    @root = Node.new(html_doc, nil, [], ".html") 
+    parse_page
   end
 
-  def parse_page(match_data = @page_array)
-    crawl_page_array
+  def setup_array
+    return @page_string.scan(GODHEAD).map! do |entry| 
+      entry.compact!
+      entry[0].strip
+    end
+
   end
 
-  def crawl_page_array
-    i = 0
+  def parse_page
+    current_parent = @root
     until @page_array.empty?
-      stack_of_parents = []
-      tag = scan_for_tag(@page_array[i])
-      if !!tag
-        if is_end_tag?(tag)
-          stack_of_parents.pop
-        else
-          node = TagGenerator.new(tag)
-          node.parent = stack_of_parents[-1]
-          node.parent.childern << node if node.parent
-          stack_of_parents << node
-        end
+      if is_a_close_tag?(@page_array[0])
+        current_parent = current_parent.parent
         @page_array.shift
+      elsif is_a_tag?(@page_array[0])
+        current_node = Node.new(
+          TagGenerator.new(@page_array.shift).create_struct,
+          current_parent, [], nil)
+        current_parent.children.unshift(current_node)
+        current_parent = current_node
       else
-        node = Node.new(@page_array[i],stack_of_parents[-1])
+        current_node = Node.new("text",  current_parent, [], @page_array.shift)
+        current_parent.children.unshift(current_node)
       end
-      i += 1
     end
   end
 
-  def is_end_tag?(tag)
-    end_tag_scan_regex = /<\/(.*?)/
-    !!tag.match(tag_scan_regex)
+  def is_a_close_tag?(tag)
+    !!tag.match(END_TAG)
   end
 
-  def scan_for_tag(input)
-    tag_scan_regex = /<(.*?)>/m
-    data = input.match(tag_scan_regex)
-    data[0][1..-2] unless data.nil?
+  def is_a_tag?(tag)
+    !!tag.match(FULL_TAG)
   end
 
-  def build_tree(tag, current_data)
-    node = Node.new(tag, nil, nil, current_data)
-
+  def display
+    stack = []
+    @root.children.each {|child| stack << child}
+    until stack.empty?
+      current_node = stack.pop
+      if current_node.is_a?(String)
+        puts current_node
+      elsif current_node.tag == "text"
+        puts current_node.data 
+      else
+        stack << "</#{current_node.tag.type}>"
+        current_node.children.each {|child| stack << child}  
+        puts current_node.tag.type unless current_node.tag == "text"
+      end
+    end
   end
 
 end
+x = HTMLParser.new("html_easy.html")
+x.parse_page
+x.display
 
-HTMLParser.new("html_easy.html").scan_for_tag("sahkjdahildhal")
+#
