@@ -28,6 +28,7 @@ class HTMLParser
       else
         node = Node.new(@page_array[i],stack_of_parents[-1])
       end
+      i += 1
     end
   end
 
