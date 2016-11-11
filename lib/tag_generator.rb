@@ -21,7 +21,7 @@ class TagGenerator
   end
 
   def parse_for(attribute)
-    attr_and_value = /#{attribute}\s*=\s*'\s*(.*?)\s*['"]/.match(@html_tag)
+    attr_and_value = /#{attribute}\s*=\s*"\s*(.*?)\s*"/.match(@html_tag)
     return nil if attr_and_value.nil?
     value = attr_and_value[1..-1]  
     return value[0].split(" ") if !!value[0].match(/\s/)

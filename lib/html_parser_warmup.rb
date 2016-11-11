@@ -1,9 +1,5 @@
-require_relative "writer"
-require_relative "tag_generator"
-require_relative "renderer"
-require_relative "searcher"
 Node = Struct.new(:tag, :parent, :children, :data)
-
+require_relative "tag_generator"
 
 END_TAG = /<\/.*?>/
 FULL_TAG = /<.*?>/
@@ -21,12 +17,10 @@ class HTMLParser
   end
 
   def setup_array
-    list = @page_string.scan(GODHEAD).map! do |entry|
+    return @page_string.scan(GODHEAD).map! do |entry| 
       entry.compact!
       entry[0].strip
     end
-    list.delete("<!doctype html>")
-    return list
 
   end
 
@@ -56,7 +50,25 @@ class HTMLParser
   def is_a_tag?(tag)
     !!tag.match(FULL_TAG)
   end
+
+  def display
+    stack = []
+    @root.children.each {|child| stack << child}
+    until stack.empty?
+      current_node = stack.pop
+      if current_node.is_a?(String)
+        puts current_node
+      elsif current_node.tag == "text"
+        puts current_node.data 
+      else
+        stack << "</#{current_node.tag.type}>"
+        current_node.children.each {|child| stack << child}  
+        puts current_node.tag.type unless current_node.tag == "text"
+      end
+    end
+  end
+
 end
 x = HTMLParser.new("html_easy.html")
-s = TreeSearcher.new(x.root)
-s.search("text", "text")
+x.parse_page
+x.display
