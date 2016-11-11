@@ -1,7 +1,4 @@
-require_relative "writer"
-require_relative "tag_generator"
-require_relative "renderer"
-require_relative "searcher"
+
 Node = Struct.new(:tag, :parent, :children, :data)
 
 
@@ -57,6 +54,3 @@ class HTMLParser
     !!tag.match(FULL_TAG)
   end
 end
-x = HTMLParser.new("html_easy.html")
-s = TreeSearcher.new(x.root)
-s.search("text", "text")
